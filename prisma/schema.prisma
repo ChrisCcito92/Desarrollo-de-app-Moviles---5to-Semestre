@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum TipoUsuario {
+  cliente
+  distribuidor
+  repartidor
+}
+
+enum EstadoPedido {
+  pendiente
+  aceptado
+  en_camino
+  entregado
+  cancelado
+}
+
+enum MetodoPago {
+  efectivo
+  tarjeta
+}
+
+enum EstadoDistribuidor {
+  activo
+  inactivo
+}
+
+model Usuario {
+  id_usuario      Int         @id @default(autoincrement())
+  nombre          String      @db.VarChar(100)
+  correo          String      @unique @db.VarChar(120)
+  telefono        String      @unique @db.VarChar(15)
+  contrasena_hash String      @db.VarChar(255)
+  tipo_usuario    TipoUsuario @default(cliente)
+  fecha_registro  DateTime    @default(now())
+  estado          Boolean     @default(true)
+
+  direcciones Direccion[]
+  pedidos     Pedido[]
+}
+
+model Direccion {
+  id_direccion     Int     @id @default(autoincrement())
+  id_usuario       Int
+  alias            String  @db.VarChar(40)
+  calle_referencia String  @db.VarChar(150)
+  latitud          Decimal @db.Decimal(10, 7)
+  longitud         Decimal @db.Decimal(10, 7)
+  predeterminada   Boolean @default(false)
+
+  usuario Usuario  @relation(fields: [id_usuario], references: [id_usuario])
+  pedidos Pedido[]
+}
+
+model Distribuidor {
+  id_distribuidor       Int                @id @default(autoincrement())
+  nombre_comercial      String             @db.VarChar(100)
+  telefono_contacto     String             @db.VarChar(15)
+  latitud_base          Decimal            @db.Decimal(10, 7)
+  longitud_base         Decimal            @db.Decimal(10, 7)
+  radio_cobertura_km    Decimal            @db.Decimal(5, 2)
+  calificacion_promedio Decimal            @default(0.00) @db.Decimal(3, 2)
+  estado                EstadoDistribuidor @default(activo)
+
+  repartidores Repartidor[]
+  productos    Producto[]
+  pedidos      Pedido[]
+}
+
+model Repartidor {
+  id_repartidor   Int          @id @default(autoincrement())
+  id_distribuidor Int
+  nombre_completo String       @db.VarChar(100)
+  placa_vehiculo  String?      @db.VarChar(10)
+  latitud_actual  Decimal?     @db.Decimal(10, 7)
+  longitud_actual Decimal?     @db.Decimal(10, 7)
+  disponible      Boolean      @default(true)
+
+  distribuidor Distribuidor @relation(fields: [id_distribuidor], references: [id_distribuidor])
+  pedidos      Pedido[]
+}
+
+model Producto {
+  id_producto      Int     @id @default(autoincrement())
+  id_distribuidor  Int
+  tipo_bidon       String  @db.VarChar(40)
+  precio_unitario  Decimal @db.Decimal(6, 2)
+  stock_disponible Int     @default(0)
+  activo           Boolean @default(true)
+
+  distribuidor Distribuidor    @relation(fields: [id_distribuidor], references: [id_distribuidor])
+  detalles     DetallePedido[]
+}
+
+model Pedido {
+  id_pedido           Int          @id @default(autoincrement())
+  id_usuario          Int
+  id_direccion        Int
+  id_distribuidor     Int
+  id_repartidor       Int?
+  fecha_pedido        DateTime     @default(now())
+  estado_pedido       EstadoPedido @default(pendiente)
+  total_pagar         Decimal      @db.Decimal(7, 2)
+  metodo_pago         MetodoPago
+  tiempo_estimado_min Int?
+  fecha_entrega_real  DateTime?
+  calificacion_pedido Int?
+  observaciones       String?      @db.VarChar(200)
+
+  usuario        Usuario       @relation(fields: [id_usuario], references: [id_usuario])
+  direccion      Direccion     @relation(fields: [id_direccion], references: [id_direccion])
+  distribuidor   Distribuidor  @relation(fields: [id_distribuidor], references: [id_distribuidor])
+  repartidor     Repartidor?   @relation(fields: [id_repartidor], references: [id_repartidor])
+  detalles       DetallePedido[]
+  notificaciones Notificacion[]
+}
+
+model DetallePedido {
+  id_detalle             Int     @id @default(autoincrement())
+  id_pedido              Int
+  id_producto            Int
+  cantidad               Int
+  precio_unitario_pedido Decimal @db.Decimal(6, 2)
+  subtotal               Decimal @db.Decimal(7, 2)
+
+  pedido   Pedido   @relation(fields: [id_pedido], references: [id_pedido])
+  producto Producto @relation(fields: [id_producto], references: [id_producto])
+}
+
+model Notificacion {
+  id_notificacion Int      @id @default(autoincrement())
+  id_pedido       Int
+  tipo_evento     String   @db.VarChar(30)
+  mensaje         String   @db.VarChar(200)
+  fecha_envio     DateTime @default(now())
+  leida           Boolean  @default(false)
+
+  pedido Pedido @relation(fields: [id_pedido], references: [id_pedido])
+}
