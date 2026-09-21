@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/usuario_model.dart';
 
 class AuthService {
-  final String baseUrl = 'http://10.0.2.2:3000';
+  final String baseUrl = 'http://192.168.100.11:3000';
 
   Future<Map<String, dynamic>> login(String correo, String contrasena) async {
     try {

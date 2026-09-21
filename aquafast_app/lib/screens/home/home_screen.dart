@@ -73,39 +73,38 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 16),
             // Opciones
             GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              children: [
-                _OpcionCard(
-                  icono: Icons.shopping_cart,
-                  titulo: 'Pedir bidón',
-                  color: Colors.blue,
-                  onTap: () => Navigator.pushNamed(context, '/pedido'),
-                ),
-                _OpcionCard(
-                  icono: Icons.list_alt,
-                  titulo: 'Mis pedidos',
-                  color: Colors.teal,
-                  onTap: () => Navigator.pushNamed(context, '/mis-pedidos'),
-                ),
-                _OpcionCard(
-                  icono: Icons.location_on,
-                  titulo: 'Mis direcciones',
-                  color: Colors.orange,
-                  onTap: () =>
-                      Navigator.pushNamed(context, '/mis-direcciones'),
-                ),
-                _OpcionCard(
-                  icono: Icons.person,
-                  titulo: 'Mi perfil',
-                  color: Colors.purple,
-                  onTap: () => Navigator.pushNamed(context, '/perfil'),
-                ),
-              ],
-            ),
+  shrinkWrap: true,
+  physics: const NeverScrollableScrollPhysics(),
+  crossAxisCount: 2,
+  crossAxisSpacing: 16,
+  mainAxisSpacing: 16,
+  children: [
+    _OpcionCard(
+      icono: Icons.shopping_cart,
+      titulo: 'Pedir bidón',
+      color: Colors.blue,
+      onTap: () => Navigator.pushNamed(context, '/pedido'),
+    ),
+    _OpcionCard(
+      icono: Icons.list_alt,
+      titulo: 'Mis pedidos',
+      color: Colors.teal,
+      onTap: () => Navigator.pushNamed(context, '/mis-pedidos'),
+    ),
+    _OpcionCard(
+      icono: Icons.location_on,
+      titulo: 'Mi ubicación',
+      color: Colors.orange,
+      onTap: () => Navigator.pushNamed(context, '/ubicacion'),
+    ),
+    _OpcionCard(
+      icono: Icons.person,
+      titulo: 'Mi perfil',
+      color: Colors.purple,
+      onTap: () => Navigator.pushNamed(context, '/perfil'),
+    ),
+  ],
+),
             const SizedBox(height: 24),
             // Info del usuario
             Container(

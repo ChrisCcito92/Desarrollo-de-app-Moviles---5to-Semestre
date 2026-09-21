@@ -5,6 +5,7 @@ import 'screens/auth/login_screen.dart';
 import 'screens/auth/registro_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/home/perfil_screen.dart';
+import 'screens/home/ubicacion_screen.dart';
 import 'splash_screen.dart';
 
 void main() {
@@ -35,6 +36,7 @@ class AquaFastApp extends StatelessWidget {
         '/registro': (context) => const RegistroScreen(),
         '/home': (context) => const HomeScreen(),
         '/perfil': (context) => const PerfilScreen(),
+        '/ubicacion': (context) => const UbicacionScreen(),
       },
     );
   }
