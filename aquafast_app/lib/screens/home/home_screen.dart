@@ -5,9 +5,80 @@ import '../../providers/auth_provider.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  List<Widget> _opcionesCliente(BuildContext context) {
+    return [
+      _OpcionCard(
+        icono: Icons.shopping_cart,
+        titulo: 'Pedir bidón',
+        color: Colors.blue,
+        onTap: () => Navigator.pushNamed(context, '/pedido'),
+      ),
+      _OpcionCard(
+        icono: Icons.list_alt,
+        titulo: 'Mis pedidos',
+        color: Colors.teal,
+        onTap: () => Navigator.pushNamed(context, '/mis-pedidos'),
+      ),
+      _OpcionCard(
+        icono: Icons.location_on,
+        titulo: 'Mi ubicación',
+        color: Colors.orange,
+        onTap: () => Navigator.pushNamed(context, '/ubicacion'),
+      ),
+      _OpcionCard(
+        icono: Icons.home,
+        titulo: 'Mis direcciones',
+        color: Colors.green,
+        onTap: () => Navigator.pushNamed(context, '/mis-direcciones'),
+      ),
+      _OpcionCard(
+        icono: Icons.person,
+        titulo: 'Mi perfil',
+        color: Colors.purple,
+        onTap: () => Navigator.pushNamed(context, '/perfil'),
+      ),
+    ];
+  }
+
+  List<Widget> _opcionesDistribuidor(BuildContext context) {
+    return [
+      _OpcionCard(
+        icono: Icons.local_shipping,
+        titulo: 'Pedidos recibidos',
+        color: Colors.blue,
+        onTap: () => Navigator.pushNamed(context, '/panel-distribuidor'),
+      ),
+      _OpcionCard(
+        icono: Icons.inventory_2,
+        titulo: 'Mi inventario',
+        color: Colors.teal,
+        onTap: () => Navigator.pushNamed(context, '/mis-productos'),
+      ),
+      _OpcionCard(
+        icono: Icons.add_box,
+        titulo: 'Agregar producto',
+        color: Colors.green,
+        onTap: () => Navigator.pushNamed(context, '/agregar-producto'),
+      ),
+      _OpcionCard(
+        icono: Icons.location_on,
+        titulo: 'Mi ubicación',
+        color: Colors.orange,
+        onTap: () => Navigator.pushNamed(context, '/ubicacion'),
+      ),
+      _OpcionCard(
+        icono: Icons.person,
+        titulo: 'Mi perfil',
+        color: Colors.purple,
+        onTap: () => Navigator.pushNamed(context, '/perfil'),
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final usuario = context.watch<AuthProvider>().usuario;
+    final esDistribuidor = usuario?.tipoUsuario == 'distribuidor';
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -47,7 +118,11 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.water_drop, color: Colors.white, size: 36),
+                  Icon(
+                    esDistribuidor ? Icons.local_shipping : Icons.water_drop,
+                    color: Colors.white,
+                    size: 36,
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     '¡Hola, ${usuario?.nombre ?? 'Usuario'}!',
@@ -58,9 +133,11 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    '¿Qué necesitas hoy?',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  Text(
+                    esDistribuidor
+                        ? 'Revisa y gestiona los pedidos de tus clientes'
+                        : '¿Qué necesitas hoy?',
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                 ],
               ),
@@ -71,40 +148,17 @@ class HomeScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            // Opciones
+            // Opciones según el rol
             GridView.count(
-  shrinkWrap: true,
-  physics: const NeverScrollableScrollPhysics(),
-  crossAxisCount: 2,
-  crossAxisSpacing: 16,
-  mainAxisSpacing: 16,
-  children: [
-    _OpcionCard(
-      icono: Icons.shopping_cart,
-      titulo: 'Pedir bidón',
-      color: Colors.blue,
-      onTap: () => Navigator.pushNamed(context, '/pedido'),
-    ),
-    _OpcionCard(
-      icono: Icons.list_alt,
-      titulo: 'Mis pedidos',
-      color: Colors.teal,
-      onTap: () => Navigator.pushNamed(context, '/mis-pedidos'),
-    ),
-    _OpcionCard(
-      icono: Icons.location_on,
-      titulo: 'Mi ubicación',
-      color: Colors.orange,
-      onTap: () => Navigator.pushNamed(context, '/ubicacion'),
-    ),
-    _OpcionCard(
-      icono: Icons.person,
-      titulo: 'Mi perfil',
-      color: Colors.purple,
-      onTap: () => Navigator.pushNamed(context, '/perfil'),
-    ),
-  ],
-),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              children: esDistribuidor
+                  ? _opcionesDistribuidor(context)
+                  : _opcionesCliente(context),
+            ),
             const SizedBox(height: 24),
             // Info del usuario
             Container(
@@ -194,6 +248,7 @@ class _OpcionCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               titulo,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 14,

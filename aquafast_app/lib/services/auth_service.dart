@@ -16,30 +16,16 @@ class AuthService {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        // Obtener datos del usuario
-        final perfilResponse = await http.get(
-          Uri.parse('$baseUrl/api/auth/perfil'),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ${data['accessToken']}',
-          },
-        );
-
-        Map<String, dynamic> usuarioData;
-        if (perfilResponse.statusCode == 200) {
-          usuarioData = jsonDecode(perfilResponse.body);
-        } else {
-          // Si no hay endpoint de perfil, usamos datos básicos del token
-          usuarioData = {
-            'id_usuario': 0,
-            'nombre': correo.split('@')[0],
-            'correo': correo,
-            'tipo_usuario': 'cliente',
+        // El backend devuelve los tokens y los datos reales del usuario (incluido su rol)
+        if (data['usuario'] == null) {
+          return {
+            'exito': false,
+            'mensaje': 'El servidor no devolvió los datos del usuario.',
           };
         }
 
         final usuario = UsuarioModel.fromJson(
-          usuarioData,
+          data['usuario'],
           data['accessToken'],
           data['refreshToken'],
         );
@@ -52,12 +38,17 @@ class AuthService {
     }
   }
 
+  /// [tipoUsuario] puede ser 'cliente' o 'distribuidor'.
+  /// Si es distribuidor, [distribuidor] lleva nombre comercial, precio, stock,
+  /// radio de cobertura y la ubicación de la base.
   Future<Map<String, dynamic>> registro(
     String nombre,
     String correo,
     String telefono,
-    String contrasena,
-  ) async {
+    String contrasena, {
+    String tipoUsuario = 'cliente',
+    Map<String, dynamic>? distribuidor,
+  }) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/api/auth/registro'),
@@ -67,7 +58,8 @@ class AuthService {
           'correo': correo,
           'telefono': telefono,
           'contrasena': contrasena,
-          'tipo_usuario': 'cliente',
+          'tipo_usuario': tipoUsuario,
+          if (distribuidor != null) 'distribuidor': distribuidor,
         }),
       );
 

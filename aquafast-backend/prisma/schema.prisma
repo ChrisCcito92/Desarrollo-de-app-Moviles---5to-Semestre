@@ -41,8 +41,9 @@ model Usuario {
   fecha_registro  DateTime    @default(now())
   estado          Boolean     @default(true)
 
-  direcciones Direccion[]
-  pedidos     Pedido[]
+  direcciones  Direccion[]
+  pedidos      Pedido[]
+  distribuidor Distribuidor?
 }
 
 model Direccion {
@@ -60,6 +61,7 @@ model Direccion {
 
 model Distribuidor {
   id_distribuidor       Int                @id @default(autoincrement())
+  id_usuario            Int?               @unique
   nombre_comercial      String             @db.VarChar(100)
   telefono_contacto     String             @db.VarChar(15)
   latitud_base          Decimal            @db.Decimal(10, 7)
@@ -68,19 +70,20 @@ model Distribuidor {
   calificacion_promedio Decimal            @default(0.00) @db.Decimal(3, 2)
   estado                EstadoDistribuidor @default(activo)
 
+  usuario      Usuario?     @relation(fields: [id_usuario], references: [id_usuario])
   repartidores Repartidor[]
   productos    Producto[]
   pedidos      Pedido[]
 }
 
 model Repartidor {
-  id_repartidor   Int          @id @default(autoincrement())
+  id_repartidor   Int      @id @default(autoincrement())
   id_distribuidor Int
-  nombre_completo String       @db.VarChar(100)
-  placa_vehiculo  String?      @db.VarChar(10)
-  latitud_actual  Decimal?     @db.Decimal(10, 7)
-  longitud_actual Decimal?     @db.Decimal(10, 7)
-  disponible      Boolean      @default(true)
+  nombre_completo String   @db.VarChar(100)
+  placa_vehiculo  String?  @db.VarChar(10)
+  latitud_actual  Decimal? @db.Decimal(10, 7)
+  longitud_actual Decimal? @db.Decimal(10, 7)
+  disponible      Boolean  @default(true)
 
   distribuidor Distribuidor @relation(fields: [id_distribuidor], references: [id_distribuidor])
   pedidos      Pedido[]
@@ -113,12 +116,16 @@ model Pedido {
   calificacion_pedido Int?
   observaciones       String?      @db.VarChar(200)
 
-  usuario        Usuario       @relation(fields: [id_usuario], references: [id_usuario])
-  direccion      Direccion     @relation(fields: [id_direccion], references: [id_direccion])
-  distribuidor   Distribuidor  @relation(fields: [id_distribuidor], references: [id_distribuidor])
-  repartidor     Repartidor?   @relation(fields: [id_repartidor], references: [id_repartidor])
+  usuario        Usuario         @relation(fields: [id_usuario], references: [id_usuario])
+  direccion      Direccion       @relation(fields: [id_direccion], references: [id_direccion])
+  distribuidor   Distribuidor    @relation(fields: [id_distribuidor], references: [id_distribuidor])
+  repartidor     Repartidor?     @relation(fields: [id_repartidor], references: [id_repartidor])
   detalles       DetallePedido[]
   notificaciones Notificacion[]
+
+  // Índices para las consultas más frecuentes (historial del cliente y panel del distribuidor)
+  @@index([id_usuario, fecha_pedido])
+  @@index([id_distribuidor, estado_pedido, fecha_pedido])
 }
 
 model DetallePedido {

@@ -8,6 +8,8 @@ app.use(express.json());
 // Rutas
 app.use("/api/auth", require("./src/routes/authRoutes"));
 app.use("/api/pedidos", require("./src/routes/pedidoRoutes"));
+app.use("/api/distribuidores", require("./src/routes/distribuidorRoutes"));
+app.use("/api/direcciones", require("./src/routes/direccionRoutes"));
 
 // Ruta de prueba
 app.get("/", (req, res) => {
